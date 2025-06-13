@@ -27,7 +27,7 @@ phases:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
       - docker push public.ecr.aws/t7g3t1i4/eks-common-services-api:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push public.ecr.aws/t7g3t1i4/eks-common-services-api:latest
       - printf '[{"name":"%s","imageUri":"%s"}]' eks-common-services-api public.ecr.aws/t7g3t1i4/eks-common-services-api> imagedefinitions.json
       - cat imagedefinitions.json
 
