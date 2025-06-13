@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo "Downloading .env from S3..."
-      - aws s3 cp s3://temporary-bucket-gitlab/.env
+      - aws s3 cp s3://temporary-bucket-gitlab/.env .env
       - echo ".env file downloaded:"
       - cat .env
       - echo "Replacing placeholders in .env..."
