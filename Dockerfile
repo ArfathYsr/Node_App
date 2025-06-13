@@ -3,7 +3,7 @@ FROM node:22-alpine
 RUN apk add --no-cache openssl libstdc++ git python3 make g++ bash
 
 # Create a non-root user and group
-RUN addgroup -S development && adduser -S devadmin -G development
+#RUN addgroup -S development && adduser -S devadmin -G development
 
 WORKDIR /usr/src/app
 
@@ -17,7 +17,7 @@ RUN npm install --ignore-scripts && \
     npx prisma generate
 
 # Change ownership of the app directory
-RUN chown -R devadmin:development /usr/src/app
+#RUN chown -R devadmin:development /usr/src/app
 
 # Switch to the non-root user
 USER devadmin
