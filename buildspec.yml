@@ -19,7 +19,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t eks-common-services-api.
+      - docker build -t eks-common-services-api .
       - docker tag eks-common-services-api:latest public.ecr.aws/t7g3t1i4/eks-common-services-api:latest
 
   post_build:
