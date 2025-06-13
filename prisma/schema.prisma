@@ -1,0 +1,2139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model theme {
+  id              Int           @id @default(autoincrement()) @map("ID")
+  createdAt       DateTime      @default(now()) @map("CreatedAt")
+  createdBy       Int           @map("CreatedBy")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy       Int           @map("UpdatedBy")
+  isActive        Boolean       @map("IsActive")
+  name            String        @map("Name") @db.VarChar(255)
+  primaryColor    String        @map("PrimaryColor") @db.Char(7)
+  secondaryColor  String        @map("SecondaryColor") @db.Char(7)
+  headerColor     String        @map("HeaderColor") @db.Char(7)
+  backgroundColor String        @map("BackgroundColor") @db.Char(7)
+  textColor       String        @map("TextColor") @db.Char(7)
+  linkColor       String        @map("LinkColor") @db.Char(7)
+  pILinkColor     String        @map("PILinkColor") @db.Char(7)
+  iconColor       String        @map("IconColor") @db.Char(7)
+  appThemes       appTheme[]
+  clientTheme     clientTheme[]
+
+  @@map("Theme")
+}
+
+model app {
+  id          Int         @id @default(autoincrement()) @map("ID")
+  createdAt   DateTime    @default(now()) @map("CreatedAt")
+  createdBy   Int         @map("CreatedBy")
+  updatedAt   DateTime    @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy   Int         @map("UpdatedBy")
+  isActive    Boolean     @map("IsActive")
+  name        String      @map("Name") @db.VarChar(255)
+  description String      @map("Description") @db.VarChar(255)
+  appThemes   appTheme[]
+  clientApp   clientApp[]
+
+  @@map("App")
+}
+
+model appTheme {
+  id      Int   @id @default(autoincrement()) @map("ID")
+  appId   Int   @map("AppID")
+  themeId Int   @map("ThemeID")
+  app     app   @relation(fields: [appId], references: [id])
+  theme   theme @relation(fields: [themeId], references: [id])
+
+  @@map("AppTheme")
+}
+
+model currency {
+  id           Int      @id @default(autoincrement()) @map("ID")
+  createdAt    DateTime @default(now()) @map("CreatedAt")
+  createdBy    Int      @map("CreatedBy")
+  updatedAt    DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy    Int      @map("UpdatedBy")
+  isActive     Boolean  @map("IsActive")
+  name         String   @map("Name") @db.NVarChar(30)
+  currencyCode String   @map("CurrencyCode") @db.NVarChar(6)
+  client       client[]
+
+  @@unique([currencyCode])
+  @@map("Currency")
+}
+
+model clientStatus {
+  id        Int      @id @default(autoincrement()) @map("ID")
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  createdBy Int      @map("CreatedBy")
+  updatedAt DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy Int      @map("UpdatedBy")
+  name      String   @map("Name") @db.VarChar(30)
+  client    client[]
+
+  @@unique([name])
+  @@map("ClientStatus")
+}
+
+model client {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  clientStatusId        Int                     @map("ClientStatusID")
+  name                  String                  @map("Name") @db.VarChar(255)
+  parentClientId        Int?                    @map("ParentClientID")
+  description           String?                 @map("Description") @db.VarChar(255)
+  currencyId            Int                     @map("CurrencyID")
+  languageId            Int                     @map("LanguageID")
+  logo                  String                  @map("Logo") @db.VarChar(255)
+  clientStatus          clientStatus            @relation(fields: [clientStatusId], references: [id])
+  currency              currency                @relation(fields: [currencyId], references: [id])
+  parentClient          client?                 @relation("ClientParent", fields: [parentClientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  children              client[]                @relation("ClientParent")
+  fieldDate             DateTime                @default(now()) @map("FieldDate")
+  onboardingStatus      Boolean                 @map("OnboardingStatus") @default(false)
+  clientApp             clientApp[]
+  clientTheme           clientTheme[]
+  clientAddress         clientAddress[]
+  clientService         clientService[]
+  contactInfo           contactInfo[]
+  clientUrl             clientUrl[]
+  roleClient            roleClient[]
+  profile               profile[]
+  startDate             DateTime?                 @map("StartDate")
+  endDate               DateTime                  @default("2050-12-31T23:59:59.000Z") @map("EndDate")
+  isActive              Boolean                   @default(true) @map("IsActive") 
+  archivedAt            DateTime?                 @map("ArchivedAt")
+  clientFunctionalArea  clientFunctionalArea[]
+  createdByProfile      profile                   @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile      profile                   @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  clientTherapeuticArea clientTherapeuticArea[]
+  profileClient         profileClient[]
+  clientPermissions     clientPermission[]
+  clientVendors         clientVendors[]
+  clientHierarchy       clientHierarchy[]
+
+
+  @@map("Client")
+}
+
+model clientUrlType {
+  id            Int         @id @default(autoincrement()) @map("ID")
+  createdAt     DateTime    @default(now()) @map("CreatedAt")
+  createdBy     Int         @map("CreatedBy")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy     Int         @map("UpdatedBy")
+  isActive      Boolean     @map("IsActive")
+  clientUrlType String      @map("ClientUrlType") @db.VarChar(40)
+  clientUrl     clientUrl[]
+
+  @@map("ClientUrlType")
+}
+
+model clientUrl {
+  id              Int           @id @default(autoincrement()) @map("ID")
+  createdAt       DateTime      @default(now()) @map("CreatedAt")
+  createdBy       Int           @map("CreatedBy")
+  updatedAt       DateTime      @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy       Int           @map("UpdatedBy")
+  isActive        Boolean       @map("IsActive")
+  clientId        Int           @map("ClientID")
+  url             String?       @map("Url") @db.VarChar(2048)
+  clientUrlTypeId Int           @map("ClientUrlTypeID")
+  client          client        @relation(fields: [clientId], references: [id])
+  clientUrlType   clientUrlType @relation(fields: [clientUrlTypeId], references: [id])
+
+  @@map("ClientUrl")
+}
+
+model clientTheme {
+  id       Int    @id @default(autoincrement()) @map("ID")
+  clientId Int    @map("ClientID")
+  themeId  Int    @map("ThemeID")
+  client   client @relation(fields: [clientId], references: [id])
+  theme    theme  @relation(fields: [themeId], references: [id])
+
+  @@unique([clientId, themeId])
+  @@map("ClientTheme")
+}
+
+model clientApp {
+  id       Int    @id @default(autoincrement()) @map("ID")
+  appId    Int    @map("AppID")
+  clientId Int    @map("ClientID")
+  app      app    @relation(fields: [appId], references: [id])
+  client   client @relation(fields: [clientId], references: [id])
+
+  @@unique([appId, clientId])
+  @@map("ClientApp")
+}
+
+model service {
+  id             Int              @id @default(autoincrement()) @map("ID")
+  createdAt      DateTime         @default(now()) @map("CreatedAt")
+  createdBy      Int              @map("CreatedBy")
+  updatedAt      DateTime         @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy      Int              @map("UpdatedBy")
+  isActive       Boolean          @map("IsActive")
+  name           String           @map("Name") @db.VarChar(255)
+  description    String           @map("Description") @db.VarChar(255)
+  serviceFeature serviceFeature[]
+  clientService  clientService[]
+
+  @@map("Service")
+}
+
+model serviceFeature {
+  id        Int      @id @default(autoincrement()) @map("ID")
+  createdAt DateTime @default(now()) @map("CreatedAt")
+  createdBy Int      @map("CreatedByID")
+  updatedAt DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy Int      @map("UpdatedByID")
+  isActive  Boolean  @map("IsActive")
+  serviceId Int      @map("ServiceID")
+  name      String   @map("Name") @db.VarChar(255)
+  service   service  @relation(fields: [serviceId], references: [id])
+
+  @@map("ServiceFeature")
+}
+
+model clientService {
+  id        Int     @id @default(autoincrement()) @map("ID")
+  clientId  Int     @map("ClientID")
+  serviceId Int     @map("ServiceID")
+  client    client  @relation(fields: [clientId], references: [id])
+  service   service @relation(fields: [serviceId], references: [id])
+
+  @@unique([clientId, serviceId])
+  @@map("ClientService")
+}
+
+model country {
+  id                 Int                  @id @default(autoincrement()) @map("ID")
+  name               String               @map("Name") @db.VarChar(255)
+  code               String               @map("Code") @db.VarChar(6)
+  createdAt          DateTime             @default(now()) @map("CreatedAt")
+  createdBy          Int                  @map("CreatedBy") @default(0)
+  updatedAt          DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int                  @map("UpdatedBy")  @default(0)
+  clientAddress      clientAddress[]
+  contactInfoAddress contactInfoAddress[]
+  address            address[]
+  vendorAddressDetails vendorAddressDetails[]
+  @@unique([code])
+  @@map("Country")
+}
+
+model addressType {
+  id                 Int                  @id @default(autoincrement()) @map("ID")
+  type               String               @map("Type") @db.VarChar(40)
+  isActive           Boolean              @map("IsActive")
+  name               String               @map("Name") @db.VarChar(255)@default("Home")
+  createdAt          DateTime             @default(now()) @map("CreatedAt")
+  createdBy          Int                  @map("CreatedBy") @default(0)
+  updatedAt          DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int                  @map("UpdatedBy")  @default(0)
+
+  clientAddress      clientAddress[]
+  contactInfoAddress contactInfoAddress[]
+  address            address[]
+  profileAddressDetails profileAddressDetails[]
+  vendorAddressDetails vendorAddressDetails[]
+  @@unique([type])
+  @@map("AddressType")
+}
+
+model clientAddress {
+  id            Int         @id @default(autoincrement()) @map("ID")
+  createdAt     DateTime    @default(now()) @map("CreatedAt")
+  createdBy     Int         @map("CreatedBy")
+  updatedAt     DateTime    @default(now()) @map("UpdatedAt")
+  updatedBy     Int         @map("UpdatedBy")
+  isActive      Boolean     @map("IsActive")
+  clientId      Int         @map("ClientID")
+  street1       String      @map("Street1") @db.VarChar(255)
+  countryId     Int         @map("CountryID")
+  zipCode       String      @map("ZipCode") @db.VarChar(8)
+  addressTypeId Int         @map("AddressTypeID")
+  city          String?      @map("City") @db.VarChar(40)
+  state         String?      @map("State") @db.VarChar(30)
+  client        client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  country       country     @relation(fields: [countryId], references: [id])
+  addressType   addressType @relation(fields: [addressTypeId], references: [id])
+  @@map("ClientAddress")
+}
+
+model contactInfo {
+  id                 Int                  @id @default(autoincrement()) @map("ID")
+  createdAt          DateTime             @default(now()) @map("CreatedAt")
+  createdBy          Int                  @map("CreatedByID")
+  updatedAt          DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int                  @map("UpdatedByID")
+  isActive           Boolean              @map("IsActive")
+  clientId           Int                  @map("ClientID")
+  name               String               @map("Name") @db.VarChar(255)
+  emailAddress       String               @map("EmailAddress") @db.VarChar(255)
+  phoneNumber        String               @map("PhoneNumber") @db.NVarChar(40)
+  correspondance     Boolean              @map("Correspondance")
+  client             client               @relation(fields: [clientId], references: [id])
+  contactInfoAddress contactInfoAddress[]
+
+  @@map("ContactInfo")
+}
+
+model contactInfoAddress {
+  id            Int         @id @default(autoincrement()) @map("ID")
+  createdAt     DateTime    @default(now()) @map("CreatedAt")
+  createdById   Int         @map("CreatedByID")
+  updatedAt     DateTime    @default(now()) @updatedAt @map("UpdatedAt")
+  updatedById   Int         @map("UpdatedByID")
+  isActive      Boolean     @map("IsActive")
+  contactInfoId Int         @map("ContactInfoID")
+  street1       String      @map("Street1") @db.VarChar(255)
+  street2       String      @map("Street2") @db.VarChar(255)
+  city          String      @map("City") @db.VarChar(40)
+  state         String      @map("State") @db.VarChar(30)
+  countryId     Int         @map("CountryID")
+  zipCode       String      @map("ZipCode") @db.VarChar(8)
+  addressTypeId Int         @map("AddressTypeID")
+  contactInfo   contactInfo @relation(fields: [contactInfoId], references: [id])
+  country       country     @relation(fields: [countryId], references: [id])
+  addressType   addressType @relation(fields: [addressTypeId], references: [id])
+
+  @@map("ContactInfoAddress")
+}
+
+model profileType {
+  id                 Int                  @id @default(autoincrement()) @map("ID")
+  name               String               @map("Name")
+  isActive           Boolean              @map("IsActive")
+  profileProfileType profileProfileType[]
+
+  @@map("ProfileType")
+}
+
+model profile {
+  id                      Int                  @id @default(autoincrement()) @map("ID")
+  createdAt               DateTime             @default(now()) @map("CreatedAt")
+  createdBy               Int                  @map("CreatedBy")
+  updatedAt               DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy               Int                  @map("UpdatedBy")
+  firstName               String               @map("FirstName") @db.VarChar(255)
+  lastName                String               @map("LastName") @db.VarChar(255)
+  middleName              String?              @map("MiddleName") @db.VarChar(255)
+  fullName                String?               @map("FullName") @db.VarChar(255)
+  preferredName           String?              @map("PreferredName") @db.VarChar(255)
+  title                   String?              @map("Title") @db.VarChar(255)
+  sapIntegration          Boolean              @default(false) @map("SapIntegration")
+  isExternal              Boolean              @default(false) @map("IsExternal")
+  internalMasterId        Int?                 @map("InternalMasterID")
+  externalMasterId        String?              @map("ExternalMasterID") @db.NVarChar(18)
+  sapVendorId             String?              @map("SapVendorID") @db.VarChar(30)
+  clientId                Int?                 @map("ClientID")
+  managerId               Int?                 @map("ManagerID")
+  delegateId              Int?                 @map("DelegateId")
+  identityId              String?              @map("IdentityId") @db.VarChar(255)
+  federationId            String?              @map("FederationId") @db.VarChar(255)
+  startDate               DateTime?            @map("StartDate")
+  endDate                 DateTime?            @map("EndDate")
+  timezoneId              Int?                 @map("timezoneId")
+  localeId                Int?                 @map("localeId")
+  userName                String?              @map("UserName") @db.VarChar(255)
+  archivedAt              DateTime?            @map("ArchivedAt")
+  client                  client?              @relation(fields: [clientId], references: [id])
+  profileProfileType      profileProfileType[]
+  phone                   phone[]
+  profileAddress          profileAddress[]
+  clientIdentifier        clientIdentifier[]
+  email                   email[]
+  masterProfileId         String?               @map("MasterProfileId") @db.VarChar(30)
+  salutation              String?              @map("Salutation") @db.VarChar(30)
+  suffix                  String?              @map("Suffix") @db.VarChar(30)
+  assistantName           String?               @map("AssistantName") @db.VarChar(255)
+  assistantEmail          String?               @map("AssistantEmail") @db.VarChar(255)
+  oneKeyId                String?               @map("oneKeyID") @db.VarChar(30)
+  veevaId                 String?               @map("VeevaID") @db.VarChar(30)
+  photo                   String?              @map("Photo") @db.VarChar(255)
+  ocePersonalId           String?               @map("OCEPersonalID") @db.VarChar(30)
+  centrisId               String?               @map("CentrisID") @db.VarChar(30)
+  isSpeaker               Boolean              @map("IsSpeaker") @default(false)
+  profileStatusId         Int                  @map("ProfileStatusId") @default(1)
+  manager                 profile?             @relation("Manager", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegate                profile?             @relation("Delegate", fields: [delegateId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  delegated               profile[]            @relation("Delegate")
+  managed                 profile[]            @relation("Manager")
+  createdByProfile        profile              @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile        profile              @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdByProfiles       profile[]            @relation("CreatedByProfile")
+  updatedByProfiles       profile[]            @relation("UpdatedByProfile")
+  createdFunctionalAreas  functionalArea[]     @relation("CreatedByProfile")
+  updatedFunctionalAreas  functionalArea[]     @relation("UpdatedByProfile")
+  createdRoles            role[]               @relation("CreatedByProfile")
+  updatedRoles            role[]               @relation("UpdatedByProfile")
+  updatedClients          client[]             @relation("CreatedByProfile")
+  createdClients          client[]             @relation("UpdatedByProfile")
+  updatedPermissions      permission[]         @relation("CreatedByProfile")
+  createdPermissions      permission[]         @relation("UpdatedByProfile")
+  updatedPermissionGroups permissionGroup[]    @relation("CreatedByProfile")
+  createdPermissionGroups permissionGroup[]    @relation("UpdatedByProfile")
+  historyEvent            historyEvent[]       @relation("ChangedByProfile")
+  createdTherapeuticArea  therapeuticArea[]    @relation("CreatedByProfile")
+  updatedTherapeuticArea  therapeuticArea[]    @relation("UpdatedByProfile")
+  timeZone                timeZone?             @relation(fields : [timezoneId], references : [id])
+  locale                  locale?               @relation(fields : [localeId], references : [id])
+  businessPhone           String?               @map("BusinessPhone") @db.VarChar(30)
+  assistantPhone          String?               @map("AssistantPhone") @db.VarChar(30)
+  mobilePhone             String?               @map("MobilePhone") @db.VarChar(30)
+  oceDigitialId           String?               @map("OceDigitialId") @db.VarChar(30)
+
+  profileRole             profileRole[]
+  profileThemes           ProfileTheme[] 
+  profileClient           profileClient[]
+  createdPermissionMenu   permissionMenu[]     @relation("CreatedByProfile")
+  updatedPermissionMenu   permissionMenu[]     @relation("UpdatedByProfile")
+  createdMenu             menu[]               @relation("CreatedByProfile")
+  updatedMenu             menu[]               @relation("UpdatedByProfile")
+  createdProfileClient    profileClient[]      @relation("CreatedByProfile")
+  updatedProfileClient    profileClient[]      @relation("UpdatedByProfile")
+  createdServiceTypes     serviceType[]        @relation("createdByProfile")
+  updatedServiceTypes     serviceType[]        @relation("updatedByProfile")
+  profileFunctionalArea   profileFunctionalArea[]
+  profilePermission       profilePermission[]
+  profilePermissionGroup  profilePermissionGroup[]
+  profileFluentLanguages  profileFluentLanguages[]
+  profileAddressDetails profileAddressDetails[]
+  profileEmailAddress  profileEmailAddress[]
+  profileStatus               profileStatus                 @relation(fields: [profileStatusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+
+  profilePhoneInfo profilePhoneInfo[]
+  hcpBioProfessional hcpBioProfessional[]
+  createdvendor            vendor[]               @relation("CreatedByProfile")
+  updatedvendor            vendor[]               @relation("UpdatedByProfile")
+  loginDetails             loginDetails[]
+  profileSegmentation profileSegmentation[]
+  communicationPreferences communicationPreferences[] 
+  engagement_engagementAv engagement_engagementAv[]
+  createdServiceOffering           serviceOffering[]    @relation("CreatedByProfile")
+  updatedServiceOffering           serviceOffering[]    @relation("UpdatedByProfile")
+  
+
+  @@unique([identityId])
+  @@index([firstName, lastName, middleName])
+  @@map("Profile")
+}
+model profileRole {
+  id                Int                  @id @default(autoincrement()) @map("ID")
+  profileId Int     @map("ProfileID")
+  roleId    Int     @map("RoleID")
+  profile   profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role      role    @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("ProfileRole")
+}
+
+model profileProfileType {
+  id            Int         @id @default(autoincrement()) @map("ID")
+  profileId     Int         @map("ProfileID")
+  profileTypeId Int         @map("ProfileTypeID")
+  profile       profile     @relation(fields: [profileId], references: [id])
+  profileType   profileType @relation(fields: [profileTypeId], references: [id])
+
+  @@unique([profileId, profileTypeId])
+  @@map("ProfileProfileType")
+}
+
+model phoneType {
+  id       Int     @id @default(autoincrement()) @map("ID")
+  name     String  @map("Name")@unique
+  isActive Boolean @map("IsActive")
+  phones   phone[]
+  profilePhoneInfo profilePhoneInfo[]
+  communicationPreferences communicationPreferences[] 
+
+  @@map("PhoneType")
+}
+
+model phone {
+  id             Int       @id @default(autoincrement()) @map("ID")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy      Int       @map("UpdatedBy")
+  isActive       Boolean   @map("IsActive")
+  profileId      Int       @map("ProfileID")
+  profile        profile   @relation(fields: [profileId], references: [id])
+  countryCode    String    @map("CountryCode") @db.NVarChar(6)
+  phoneNumber    String    @map("PhoneNumber") @db.VarChar(40)
+  phoneTypeId    Int       @map("PhoneTypeID")
+  phoneType      phoneType @relation(fields: [phoneTypeId], references: [id])
+  correspondance Boolean   @map("Correspondance")
+
+  @@index([phoneNumber])
+  @@map("Phone")
+}
+
+model address {
+  id               Int              @id @default(autoincrement()) @map("ID")
+  createdAt        DateTime         @default(now()) @map("CreatedAt")
+  createdBy        Int              @map("CreatedBy")
+  updatedAt        DateTime         @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy        Int              @map("UpdatedBy")
+  isActive         Boolean          @map("IsActive")
+  street1          String           @map("Street1") @db.VarChar(255)
+  street2          String           @map("Street2") @db.VarChar(255)
+  city             String           @map("City") @db.VarChar(40)
+  state            String           @map("State") @db.VarChar(30)
+  countryId        Int              @map("CountryID")
+  country          country          @relation(fields: [countryId], references: [id])
+  zipCode          String           @map("ZipCode") @db.VarChar(8)
+  addressTypeId    Int              @map("AddressTypeID")
+  addressType      addressType      @relation(fields: [addressTypeId], references: [id])
+  profileAddresses profileAddress[]
+
+  @@map("Address")
+}
+
+model profileAddress {
+  id        Int     @id @default(autoincrement()) @map("ID")
+  profileId Int     @map("ProfileID")
+  addressId Int     @map("AddressID")
+  isPrimary Boolean @map("IsPrimary")
+  profile   profile @relation(fields: [profileId], references: [id])
+  address   address @relation(fields: [addressId], references: [id])
+
+  @@unique([profileId, addressId])
+  @@map("ProfileAddress")
+}
+
+model identifierType {
+  id                Int                @id @default(autoincrement()) @map("ID")
+  name              String             @map("Name")
+  isActive          Boolean            @map("IsActive")
+  clientIdentifiers clientIdentifier[]
+
+  @@map("IdentifierType")
+}
+
+model clientIdentifier {
+  id               Int            @id @default(autoincrement()) @map("ID")
+  createdAt        DateTime       @default(now()) @map("CreatedAt")
+  createdBy        Int            @map("CreatedBy")
+  updatedAt        DateTime       @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy        Int            @map("UpdatedBy")
+  isActive         Boolean        @map("IsActive")
+  profileId        Int            @map("ProfileID")
+  identifier       String         @map("Identifier") @db.VarChar(255)
+  identifierTypeId Int            @map("IdentifierTypeID")
+  profile          profile        @relation(fields: [profileId], references: [id])
+  identifierType   identifierType @relation(fields: [identifierTypeId], references: [id])
+
+  @@map("ClientIdentifier")
+}
+
+model emailAddressType {
+  id       Int     @id @default(autoincrement()) @map("ID")
+  name     String  @map("Name")
+  isActive Boolean @map("IsActive")
+  emails   email[]
+
+  @@map("EmailAddressType")
+}
+
+model email {
+  id                 Int              @id @default(autoincrement()) @map("ID")
+  createdAt          DateTime         @default(now()) @map("CreatedAt")
+  createdBy          Int              @map("CreatedBy")
+  updatedAt          DateTime         @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int              @map("UpdatedBy")
+  isActive           Boolean          @map("IsActive")
+  profileId          Int              @map("ProfileID")
+  emailAddress       String           @map("EmailAddress") @db.VarChar(255)
+  emailAddressTypeId Int              @map("EmailAddressTypeID")
+  profile            profile          @relation(fields: [profileId], references: [id])
+  emailAddressType   emailAddressType @relation(fields: [emailAddressTypeId], references: [id])
+  correspondance     Boolean          @map("Correspondance")
+
+  @@index([emailAddress])
+  @@map("Email")
+}
+
+model permission {
+  id                        Int                         @id @default(autoincrement()) @map("ID")
+  createdAt                 DateTime                    @default(now()) @map("CreatedAt")
+  createdBy                 Int                         @map("CreatedBy")
+  updatedAt                 DateTime                    @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy                 Int                         @map("UpdatedBy")
+  startDate                 DateTime?                   @map("StartDate")
+  endDate                   DateTime?                   @map("EndDate")
+  name                      String                      @map("Name") @db.VarChar(40)
+  description               String                      @map("Description") @db.VarChar(255)
+  isActive                  Boolean                     @default(true)@map("IsActive")
+  archivedAt                DateTime?                   @map("ArchivedAt")
+  cloneId                   Int?                        @map("CloneId") 
+  permissionGroupPermission permissionGroupPermission[]
+  createdByProfile          profile                     @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile          profile                     @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  permissionMenu          permissionMenu[] 
+  rolePermission          rolePermission[]    
+  clientPermissions       clientPermission[]
+  profilePermission         profilePermission[]
+  statusId                  Int                         @map("StatusId") @default(1)
+  status                    status                      @relation(fields: [statusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Permission")
+}
+
+model functionalArea {
+  id                   Int                    @id @default(autoincrement()) @map("ID")
+  createdAt            DateTime               @default(now()) @map("CreatedAt")
+  createdBy            Int                    @map("CreatedBy")
+  updatedAt            DateTime               @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy            Int                    @map("UpdatedBy")
+  startDate            DateTime?              @map("StartDate")
+  endDate              DateTime?              @map("EndDate")
+  name                 String                 @map("Name") @db.VarChar(255)
+  description          String                 @map("Description") @db.VarChar(255)
+  isExternal           Boolean                @default(false) @map("IsExternal")
+  archivedAt           DateTime?              @map("ArchivedAt")
+  cloneId              Int?                   @map("CloneId")
+  statusId             Int                    @map("StatusId") @default(1)
+  clientFunctionalArea clientFunctionalArea[]
+  role                 role[]
+  createdByProfile     profile                @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile     profile                @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profileFunctionalArea      profileFunctionalArea[]
+  status               status                 @relation(fields: [statusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+
+  @@index(fields: [startDate, endDate], name: "startDate_endDate")
+  @@map("FunctionalArea")
+}
+
+model clientFunctionalArea {
+  id               Int            @id @default(autoincrement()) @map("ID")
+  clientId         Int            @map("ClientID")
+  functionalAreaId Int            @map("FunctionalAreaID")
+  client           client         @relation(fields: [clientId], references: [id])
+  functionalArea   functionalArea @relation(fields: [functionalAreaId], references: [id], onDelete: Cascade)
+
+  @@map("ClientFunctionalArea")
+}
+
+model permissionGroup {
+  id                        Int                         @id @default(autoincrement()) @map("ID")
+  createdAt                 DateTime                    @default(now()) @map("CreatedAt")
+  createdBy                 Int                         @map("CreatedBy")
+  updatedAt                 DateTime                    @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy                 Int                         @map("UpdatedBy")
+  name                      String                      @map("Name") @db.VarChar(255)
+  description               String                      @map("Description") @db.VarChar(255)
+  startDate                 DateTime?                   @map("StartDate")
+  endDate                   DateTime?                   @map("EndDate")
+  cloneId                   Int?                        @map("CloneId")
+  archivedAt                DateTime?                   @map("ArchivedAt") 
+  permissionGroupPermission permissionGroupPermission[]
+  rolePermissionGroup       rolePermissionGroup[]
+  createdByProfile          profile                     @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile          profile                     @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  statusId                  Int                         @map("StatusId") @default(1)
+  status                    status                      @relation(fields: [statusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+ 
+  profilePermissionGroup    profilePermissionGroup[]
+  @@map("PermissionGroup")
+}
+
+
+model permissionGroupPermission {
+  id                Int             @id @default(autoincrement()) @map("ID")
+  permissionId      Int             @map("PermissionID")
+  permissionGroupId Int             @map("PermissionGroupID")
+  permissionGroup   permissionGroup @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade)
+  permission        permission      @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@map("PermissionGroupPermission")
+}
+
+model role {
+  id               Int               @id @default(autoincrement()) @map("ID")
+  createdAt        DateTime          @default(now()) @map("CreatedAt")
+  createdBy        Int               @map("CreatedBy")
+  updatedAt        DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy        Int               @map("UpdatedBy")
+  startDate        DateTime?         @map("StartDate")
+  endDate          DateTime?         @map("EndDate")
+  functionalAreaId Int               @map("FunctionalAreaID")
+  name             String            @map("Name") @db.VarChar(255) 
+  cloneId          Int?              @map("CloneId") 
+  description      String            @map("Description") @db.VarChar(255)
+  isExternal       Boolean           @default(false) @map("IsExternal")
+  statusId         Int               @map("StatusId") @default(1)
+  functionalArea   functionalArea    @relation(fields: [functionalAreaId], references: [id], onDelete: Cascade)
+  createdByProfile profile           @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile profile           @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profileRole      profileRole[]
+  rolePermissionGroup rolePermissionGroup[]
+  archivedAt        DateTime?         @map("ArchivedAt")
+  rolePermission    rolePermission[]
+  roleClient        roleClient[]
+  roleCategoryAlignment roleCategoryAlignment[]
+  roleCriteriaAlignment roleCriteriaAlignment[]
+  hcpBioProfessional hcpBioProfessional[]
+  status                status                      @relation(fields: [statusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+  @@index([name])
+  @@map("Role")
+  
+}
+model rolePermissionGroup {
+  id                  Int             @id @default(autoincrement()) @map("ID")
+  roleId              Int             @map("RoleID")
+  permissionGroupId   Int             @map("PermissionGroupID")
+  permissionGroup     permissionGroup @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade)
+  role                role            @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("RolePermissionGroup")
+}
+
+model roleClient {
+  id                  Int             @id @default(autoincrement()) @map("ID")
+  roleId              Int             @map("RoleID")
+  clientId            Int             @map("clientID")
+  client              client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  role                role            @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@map("roleClient")
+}
+model therapeuticArea {
+  id                      Int               @id @default(autoincrement()) @map("ID")
+  createdAt               DateTime          @default(now()) @map("CreatedAt")
+  createdBy               Int               @map("CreatedBy")
+  updatedAt               DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy               Int               @map("UpdatedBy")
+  startDate               DateTime          @map("StartDate")
+  endDate                 DateTime          @map("EndDate")
+  name                    String            @map("Name") @db.VarChar(40)
+  description             String            @map("Description") @db.VarChar(255)
+  createdByProfile        profile           @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile        profile           @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)  
+  isActive                Boolean           @default(true) @map("IsActive") 
+
+  clientTherapeuticArea               clientTherapeuticArea[]
+  engagementType_engagementType       engagementType_engagementType[]
+
+  @@map("TherapeuticArea")
+}
+
+
+model clientTherapeuticArea {
+  id                  Int             @id @default(autoincrement()) @map("ID")
+  therapeuticAreaId  Int              @map("TherapeuticAreaId")
+  clientId            Int             @map("ClientID")
+
+  client              client          @relation(fields: [clientId], references: [id])
+  therapeuticArea     therapeuticArea @relation(fields: [therapeuticAreaId], references: [id])
+
+  @@map("ClientTherapeuticArea")
+}
+model historyEvent {
+  id             Int           @id @default(autoincrement()) @map("ID")
+  referenceType  String        @map("ReferenceType") @db.VarChar(20) @default("DefaultType") // Eg: "Permission", "PermissionGroup"
+  referenceId    Int        @map("ReferenceId") @default(0) // Generic ID for Permission, PermissionGroup, etc.
+  changedBy      Int           @map("ChangedBy")
+  changedAt      DateTime      @default(now()) @map("ChangedAt")
+  fieldChange    fieldChange[]
+
+  changedByProfile profile           @relation("ChangedByProfile", fields: [changedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@index([referenceType, referenceId])
+  @@map("HistoryEvent")
+}
+
+model fieldChange {
+  id             Int        @id @default(autoincrement()) @map("ID")
+  historyEventId Int        @map("HistoryEventID")
+  field          String     @map("Field") @db.VarChar(20)
+  previousValue  String?    @map("PreviousValue") @db.VarChar(255)
+  newValue       String?    @map("NewValue") @db.VarChar(255)
+
+  historyEvent historyEvent @relation(fields: [historyEventId], references: [id])
+  @@map("FieldChange")
+}
+
+model profileClient {
+  id                    Int        @id @default(autoincrement()) @map("ID")
+  profileId             Int        @map("ProfileID")
+  clientId              Int        @map("ClientID")
+  startDate             DateTime?  @map("StartDate")
+  endDate               DateTime?  @map("EndDate")
+  createdAt             DateTime   @default(now()) @map("CreatedAt")
+  createdBy             Int        @map("CreatedBy")
+  updatedAt             DateTime   @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int        @map("UpdatedBy")
+
+  profile               profile    @relation(fields: [profileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  client                client     @relation(fields: [clientId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  createdByProfile      profile    @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile      profile    @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("ProfileClient")
+}
+
+model rolePermission {
+  id                Int               @id @default(autoincrement()) @map("ID")
+  createdAt         DateTime          @default(now()) @map("CreatedAt")
+  createdBy         Int               @map("CreatedBy")
+  updatedAt         DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy         Int               @map("UpdatedBy")
+  roleId            Int               @map("RoleID")
+  permissionId      Int               @map("PermissionID")
+
+  role              role    @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permission        permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("RolePermission")
+}
+
+model ProfileTheme {
+    id               Int            @id @default(autoincrement())
+    profileId        Int
+    interfaceThemeId Int?           @map("interfaceThemeID")
+    brandColorCodeId Int?           @map("brandColorCodeID")
+    createdBy        Int            
+    createdAt        DateTime       @default(now())
+    updatedBy        Int            
+    updatedAt        DateTime       @updatedAt
+
+    profile          profile           @relation(fields: [profileId], references: [id])
+    interfaceTheme   Interfacetheme?    @relation(fields: [interfaceThemeId], references: [id])
+    brandColor       BrandColor?        @relation(fields: [brandColorCodeId], references: [id])
+
+  @@map("ProfileTheme")
+}
+
+model BrandColor {
+    id               Int               @id @default(autoincrement())
+    colorCode        String            @map("ColorCode") @db.VarChar(7) @unique
+    createdBy        Int               @map("CreatedBy")
+    createdAt        DateTime          @default(now()) @map("CreatedAt")
+    updatedBy        Int               @map("UpdatedBy")
+    updatedAt        DateTime          @updatedAt
+
+    profileThemes    ProfileTheme[]    
+
+  @@map("BrandColor")
+}
+
+model Interfacetheme {
+    id               Int               @id @default(autoincrement()) @map("interfaceThemeID")
+    themeName        String            @map("ThemeName") @db.VarChar(255)
+    themeImageUrl    String            @map("ThemeImageUrl") @db.VarChar(255)
+    createdBy        Int               @map("CreatedBy")
+    createdAt        DateTime          @default(now()) @map("CreatedAt")
+    updatedBy        Int               @map("UpdatedBy")
+    updatedAt        DateTime          @updatedAt
+
+    profileThemes    ProfileTheme[]    // Relation back to ProfileTheme model
+
+  @@map("Interfacetheme")
+}
+ model timeZone  {
+  id               Int               @id @default(autoincrement()) @map("ID")
+  createdAt        DateTime          @default(now()) @map("CreatedAt")
+  createdBy        Int               @map("CreatedBy")
+  updatedAt        DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy        Int               @map("UpdatedBy")
+  isActive         Boolean           @map("IsActive")
+  name             String            @map("Name") @db.VarChar(40)@unique
+  utcOffset        String            @map("UtcOffset")@default("") @db.VarChar(255)
+  abbreviation     String            @map("Abbreviation")@default("") @db.VarChar(255)
+  profile          profile[] 
+  profileAddressDetails profileAddressDetails[]
+
+  @@map("TimeZone")
+}
+
+ model locale  {
+  id               Int               @id @default(autoincrement()) @map("ID")
+  createdAt        DateTime          @default(now()) @map("CreatedAt")
+  createdBy        Int               @map("CreatedBy")
+  updatedAt        DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy        Int               @map("UpdatedBy")
+  isActive         Boolean           @map("IsActive")
+  name             String            @map("Name") @db.VarChar(40)@unique
+  profile          profile[]
+  profileAddressDetails profileAddressDetails[]
+
+  @@map("locale")
+}
+model loginDetails {
+  id               Int      @id @default(autoincrement()) @map("ID")
+  profileId        Int      @map("ProfileID")
+  applicationName  String?   @db.VarChar(40) @map("ApplicationName")
+  browserName      String?   @db.VarChar(40) @map("BrowserName")
+  device           String?   @db.VarChar(40) @map("Device")
+  duration         DateTime? @map("Duration")
+  loggedinAt       DateTime @map("LoggedinAt")  @default(now())
+  isLoginSuccess   Boolean  @map("IsLoginSuccess")  @default(false)
+  loginUrl         String?  @db.VarChar(255) @map("LoginUrl")
+  sourceIp         String?   @db.VarChar(20) @map("SourceIp")
+  country          String?   @db.VarChar(40) @map("Country")
+
+  profile          profile   @relation(fields: [profileId], references: [id])
+  @@map("LoginDetails")
+}
+
+model menu {
+    id              Int       @id @default(autoincrement())
+    name            String    @map("Name") @db.VarChar(255) @default("DefaultName") 
+    parentMenuId    Int?      @map("ParentMenuID") 
+    createdAt       DateTime  @default(now()) @map("CreatedAt")
+    updatedAt       DateTime  @updatedAt @map("UpdatedAt")
+    createdBy       Int       @map("CreatedBy")
+    updatedBy       Int       @map("UpdatedBy")
+
+    createdByProfile      profile    @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    updatedByProfile      profile    @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+    permissionMenu  permissionMenu[] 
+    subMenus        menu[]    @relation("SubMenus")
+    parentMenu      menu?     @relation("SubMenus", fields: [parentMenuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    
+    @@unique([name])
+    @@map("Menu")
+}
+
+
+model permissionMenu {
+    id                    Int        @id @default(autoincrement()) @map("ID")
+    menuId                Int        @map("MenuId")
+    permissionId          Int        @map("PermissionId")
+    startDate             DateTime?  @map("StartDate")
+    endDate               DateTime?  @map("EndDate")
+    createdAt             DateTime   @default(now()) @map("CreatedAt")
+    createdBy             Int        @map("CreatedBy")
+    updatedAt             DateTime   @default(now()) @updatedAt @map("UpdatedAt")
+    updatedBy             Int        @map("UpdatedBy")
+
+    menu                  menu       @relation(fields: [menuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    permission            permission @relation(fields: [permissionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+    createdByProfile      profile    @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+    updatedByProfile      profile    @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("PermissionMenu")
+}
+model clientPermission {
+  id           Int      @id @default(autoincrement()) @map("ID")
+  clientId     Int      @map("ClientID")
+  permissionId Int      @map("PermissionID")
+  client       client   @relation(fields: [clientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permission   permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("ClientPermission")
+}
+model importProfileFileName {
+  id            Int       @id @default(autoincrement()) @map("ID")
+  fileName      String    @db.VarChar(255) @map("FileName")
+  createdAt     DateTime  @map("CreatedAt") @default(now())
+
+  importProfileHistory importProfileHistory[]
+
+  @@map("ImportProfileFileName")
+}
+
+model importProfileHistory {
+  id                      Int       @id @default(autoincrement()) @map("ID")
+  firstName               String?   @db.VarChar(255) @map("FirstName")
+  lastName                String?   @db.VarChar(255) @map("LastName")
+  preferredName           String?   @db.VarChar(255) @map("PreferredName")
+  email                   String?   @db.VarChar(255) @map("Email")
+  phoneNumber             String?   @db.VarChar(30) @map("PhoneNumber")
+  userName                String?   @db.VarChar(255) @map("UserName")
+  delegateUser            String?   @db.VarChar(255) @map("DelegateUser")
+  functionalArea          String?   @db.VarChar(255) @map("FunctionalArea")
+  role                    String?   @db.VarChar(255) @map("Role")
+  permission              String?   @db.VarChar(255) @map("Permissions")
+  permissionGroup         String?   @db.VarChar(255) @map("PermissionGroups")
+  timeZone                String?   @db.VarChar(40) @map("Timezone")
+  locale                  String?   @db.VarChar(40) @map("Locale")
+  isSuccess               Boolean?  @map("IsSuccess") 
+  createdBy               Int       @map("CreatedBy")
+  createdAt               DateTime  @map("CreatedAt") @default(now())
+  userData                String?   @db.VarChar(20) @map("UserData")
+  importProfileFileNameId Int       @map("ImportProfileFileNameId")
+
+  importProfileFileName     importProfileFileName             @relation(fields : [importProfileFileNameId], references : [id])
+  importProfileFailedDetails importProfileFailedDetails[]
+
+  @@map("ImportProfileHistory")
+}
+
+model importProfileFailedDetails {
+  id                       Int       @id @default(autoincrement()) @map("ID")
+  importProfileHistoryId   Int       @map("ImportProfileHistoryId")
+  fieldName                String    @db.VarChar(50) @map("FieldName")
+  failedReason             String    @db.VarChar(255) @map("FailedReason")
+
+  importProfileHistory     importProfileHistory             @relation(fields : [importProfileHistoryId], references : [id])
+
+  @@map("ImportProfileFailedDetails")
+}
+
+model profileFunctionalArea {
+  id                Int     @id @default(autoincrement()) @map("ID")
+  profileId         Int     @map("ProfileID")
+  functionalAreaId  Int     @map("FuntionalAreaID")
+
+  profile           profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  functionalArea    functionalArea    @relation(fields: [functionalAreaId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("ProfileFunctionalArea")
+}
+
+model profilePermission {
+  id                Int     @id @default(autoincrement()) @map("ID")
+  profileId         Int     @map("ProfileID")
+  permissionId      Int     @map("PermissionID")
+
+  profile           profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permission        permission    @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("ProfilePermission")
+}
+
+model profilePermissionGroup {
+  id                Int     @id @default(autoincrement()) @map("ID")
+  profileId         Int     @map("ProfileID")
+  permissionGroupId Int     @map("PermissionGroupID")
+
+  profile           profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  permissionGroup   permissionGroup    @relation(fields: [permissionGroupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("ProfilePermissionGroup")
+}
+
+model roleCategory {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  isActive              Boolean                 @map("IsActive")
+  roleCategoryName      String                  @map("RoleCategoryName") @db.VarChar(255)
+  roleCategoryAlignment roleCategoryAlignment[]
+
+  @@unique([roleCategoryName])
+  @@map("RoleCategory")
+}
+
+model roleCriteria {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  roleCriteriaName      String                  @map("RoleCriteriaName") @db.VarChar(255)
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  isActive              Boolean                 @map("IsActive")
+  roleCriteriaAlignment roleCriteriaAlignment[]
+
+  @@unique([roleCriteriaName])
+  @@map("RoleCriteria")
+}
+
+model roleCategoryAlignment {
+  id             Int      @id @default(autoincrement()) @map("ID")
+  roleId         Int
+  roleCategoryId Int
+  createdAt      DateTime @default(now()) @map("CreatedAt")
+  createdBy      Int      @map("CreatedBy")
+  updatedAt      DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy      Int      @map("UpdatedBy")
+  isActive       Boolean  @map("IsActive")
+
+  role         role         @relation(fields: [roleId], references: [id])
+  roleCategory roleCategory @relation(fields: [roleCategoryId], references: [id])
+
+  @@map("RoleCategoryAlignment")
+}
+
+model roleCriteriaAlignment {
+  id                   Int      @id @default(autoincrement()) @map("ID")
+  roleId               Int
+  roleCriteriaId       Int
+  createdAt            DateTime @default(now()) @map("CreatedAt")
+  createdBy            Int      @map("CreatedBy")
+  updatedAt            DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy            Int      @map("UpdatedBy")
+  isActive             Boolean  @map("IsActive")
+  roleCriteriaResponse String   @map("RoleCriteriaResponse") @db.VarChar(255)
+
+  role         role         @relation(fields: [roleId], references: [id])
+  roleCriteria roleCriteria @relation(fields: [roleCriteriaId], references: [id])
+
+  @@map("RoleCriteriaAlignment")
+}
+
+model tableRelation {
+  id             Int      @id @default(autoincrement())
+  currentTable   String    @map("CurrentTable")
+  fieldName      String    @map("FieldName")
+  relationTable  String    @map("RelationTable")
+  masterTable    String    @map("MasterTable")
+
+  @@map("TableRelation")
+}
+model archiveFilter {
+  id                Int      @id @default(autoincrement())
+  name              String   @map("ArchiveFilterName") @db.VarChar(30)
+  createdBy         Int      @map("CreatedBy")
+  updatedBy         Int      @map("UpdatedBy")
+  createdAt         DateTime @default(now()) @map("CreatedAt")
+  updatedAt         DateTime @default(now()) @updatedAt @map("UpdatedAt")
+
+  @@unique([name])
+  @@map("ArchiveFilter")
+}
+model status {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  statusName            String                  @map("StatusName") @db.VarChar(255)
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  
+  @@map("Status")
+  @@unique([statusName])
+  role role[]
+  permissionGroup permissionGroup[]
+  permission      permission[]
+  functionalArea   functionalArea[]
+  clientHierarchy  clientHierarchy[]
+}
+
+model fluentLanguages {
+  id                Int      @id @default(autoincrement())
+  name              String   @map("Name") @db.VarChar(255)@unique
+  createdBy         Int      @map("CreatedBy")
+  updatedBy         Int      @map("UpdatedBy")
+  createdAt         DateTime @default(now()) @map("CreatedAt")
+  updatedAt         DateTime @default(now()) @updatedAt @map("UpdatedAt")
+  profileFluentLanguages profileFluentLanguages[]
+
+  @@map("FluentLanguages")
+}
+
+model profileFluentLanguages {
+  id                Int      @id @default(autoincrement())
+  profileId         Int     @map("ProfileID")
+  fluentLanguagesId         Int     @map("FluentLanguagesId")@default(1)
+  createdBy         Int      @map("CreatedBy")
+  createdAt         DateTime @default(now()) @map("CreatedAt")
+  updatedBy         Int      @map("UpdatedBy")
+  updatedAt         DateTime @default(now()) @updatedAt @map("UpdatedAt")
+
+  profile               profile    @relation(fields: [profileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fluentLanguages fluentLanguages @relation(fields: [fluentLanguagesId], references: [id])
+  @@map("ProfileFluentLanguages")
+}
+
+model city {
+  id                      Int                  @id @default(autoincrement()) @map("ID")
+  createdAt               DateTime             @default(now()) @map("CreatedAt")
+  createdBy               Int                  @map("CreatedBy") @default(0)
+  updatedAt               DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy               Int                  @map("UpdatedBy")  @default(0)
+  name	         String               @map("Name") @db.VarChar(255)
+  @@map("City")
+  profileAddressDetails profileAddressDetails[]
+  vendorAddressDetails vendorAddressDetails[]
+}
+
+model state {
+  id                      Int                  @id @default(autoincrement()) @map("ID")
+  createdAt               DateTime             @default(now()) @map("CreatedAt")
+  createdBy               Int                  @map("CreatedBy")
+  updatedAt               DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy               Int                  @map("UpdatedBy")
+  name	                  String                        @map("Name") @db.VarChar(255)
+  @@map("State")
+  profileAddressDetails profileAddressDetails[]
+  vendorAddressDetails vendorAddressDetails[]
+}
+
+model profileEmailAddress {
+  id                      Int                  @id @default(autoincrement()) @map("ID")
+  profileId               Int                  @map("ProfileID")
+  emailAddress            String               @map("EmailAddress") @db.VarChar(255)
+  isPrimary               Boolean              @map("IsPrimary")
+  updatedBy               Int                  @map("UpdatedBy")  @default(0)
+  createdBy               Int                  @map("CreatedBy") @default(0)
+  createdAt               DateTime             @default(now()) @map("CreatedAt")
+  updatedAt               DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+
+  profile                profile @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profileAddressDetails  profileAddressDetails[]
+
+  @@map("profileEmailAddress")
+}
+
+model profileAddressDetails  {
+  id               Int               @id @default(autoincrement()) @map("ID")
+  profileId           Int            @map("ProfileID")
+  createdAt        DateTime          @default(now()) @map("CreatedAt")
+  createdBy        Int               @map("CreatedBy") 
+  updatedAt        DateTime          @updatedAt @map("UpdatedAt")
+  updatedBy        Int               @map("UpdatedBy") 
+  addressTypeId    Int               @map("AddressTypeId") 
+  address          String            @map("Address") @db.VarChar(255)
+  emailAddress     String?            @map("EmailAddress") @db.VarChar(255)
+  cityId           Int               @map("CityId")
+  stateId          Int               @map("StateId")
+  zipcode          String            @map("Zipcode") @db.VarChar(40)
+  poBox            String?            @map("PoBox") @db.VarChar(40)
+  isActive         Boolean           @map("IsActive")
+  isPrimary        Boolean           @map("IsPrimary")
+  timeZoneId       Int?               @map("TimeZoneId")
+  localeId         Int?               @map("LocaleId")
+  emailAddressId   Int?               @map("EmailAddressId")
+
+  addressType addressType @relation(fields: [addressTypeId], references: [id]) 
+  city city @relation(fields: [cityId], references: [id]) 
+  state state @relation(fields: [stateId], references: [id]) 
+  timeZone timeZone? @relation(fields: [timeZoneId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  locale locale? @relation(fields: [localeId], references: [id], onUpdate: NoAction, onDelete: NoAction) 
+  profileEmailAddress profileEmailAddress? @relation(fields: [emailAddressId], references: [id], onUpdate: NoAction, onDelete: NoAction) 
+  profile profile @relation(fields: [profileId], references: [id]) 
+  
+  @@map("ProfileAddressDetails")
+}
+
+model profileStatus {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  statusName            String                  @map("StatusName") @db.VarChar(255)
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  
+  @@map("ProfileStatus")
+  @@unique([statusName])
+  profile profile[]
+}
+
+model specialty {
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  primaryHcpBioProfessionals   hcpBioProfessional[] @relation("PrimarySpecialty")
+  secondaryHcpBioProfessionals hcpBioProfessional[] @relation("SecondarySpecialty")
+
+  @@unique([name])
+  @@map("Specialty")
+}
+
+model internationalPrefix{
+  id                     Int                 @id @default(autoincrement()) @map("ID")
+  name                   String               @map("Name") @db.VarChar(30)@unique@default("+1")
+  createdAt               DateTime             @default(now()) @map("CreatedAt")
+  createdBy               Int                  @map("CreatedBy")
+  updatedAt               DateTime             @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy               Int                  @map("UpdatedBy")
+
+  profilePhoneInfo profilePhoneInfo[]
+  communicationPreferences communicationPreferences[] 
+
+  @@map("InternationalPrefix")
+}
+
+
+model callDay {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesCallDay communicationPreferencesCallDay[] 
+
+  @@map("CallDay")
+}
+
+model callTime {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesCallTime communicationPreferencesCallTime[] 
+
+  @@map("CallTime")
+}
+
+model emailDay {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesEmailDay communicationPreferencesEmailDay[]
+
+  @@map("EmailDay")
+}
+
+model emailTime {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesEmailTime communicationPreferencesEmailTime[]
+
+  @@map("EmailTime")
+}
+
+model smsDay {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesSmsDay communicationPreferencesSmsDay[] 
+
+  @@map("SmsDay")
+}
+
+model smsTime {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(20) @map("Name")
+  createdBy Int      @map("CreatedBy") 
+  createdAt DateTime @default(now()) @map("CreatedAt")
+
+  communicationPreferencesSmsTime communicationPreferencesSmsTime[]
+
+  @@map("SmsTime")
+}
+model communicationPreferencesCallDay {
+  communicationPreferencesId Int
+  callDayId                  Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  callDay                    callDay                 @relation(fields: [callDayId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, callDayId])
+  @@map("CommunicationPreferencesCallDay")
+}
+
+model communicationPreferencesCallTime {
+  communicationPreferencesId Int
+  callTimeId                 Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  callTime                   callTime                 @relation(fields: [callTimeId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, callTimeId])
+  @@map("CommunicationPreferencesCallTime")
+}
+
+model communicationPreferencesEmailDay {
+  communicationPreferencesId Int
+  emailDayId                 Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  emailDay                   emailDay                 @relation(fields: [emailDayId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, emailDayId])
+  @@map("CommunicationPreferencesEmailDay")
+}
+
+model communicationPreferencesEmailTime {
+  communicationPreferencesId Int
+  emailTimeId                Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  emailTime                  emailTime                @relation(fields: [emailTimeId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, emailTimeId])
+  @@map("CommunicationPreferencesEmailTime")
+}
+
+model communicationPreferencesSmsDay {
+  communicationPreferencesId Int
+  smsDayId                   Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  smsDay                     smsDay                   @relation(fields: [smsDayId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, smsDayId])
+  @@map("CommunicationPreferencesSmsDay")
+}
+
+model communicationPreferencesSmsTime {
+  communicationPreferencesId Int
+  smsTimeId                  Int
+
+  communicationPreferences   communicationPreferences @relation(fields: [communicationPreferencesId], references: [id], onDelete: Cascade)
+  smsTime                    smsTime                 @relation(fields: [smsTimeId], references: [id], onDelete: Cascade)
+
+  @@id([communicationPreferencesId, smsTimeId])
+  @@map("CommunicationPreferencesSmsTime")
+}
+
+model communicationPreferences {
+  id                      Int       @id @map("ID") @default(autoincrement())
+  profileId               Int       @map("ProfileID")
+  phoneTypeId             Int       @map("PhoneTypeID")
+  internationalPrefixId   Int       @map("InternationalPrefixID")
+  phoneNumber             String    @map("PhoneNumber")
+  phoneNumberExtension    String?   @map("PhoneNumberExtension")
+  faxNumber               String?   @map("FaxNumber")
+  createdBy               Int       @map("CreatedBy")
+  updatedBy               Int       @map("UpdatedBy")
+  createdAt               DateTime  @default(now()) @map("CreatedAt")
+  updatedAt               DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  internationalPrefix    internationalPrefix @relation(fields: [internationalPrefixId], references: [id])
+  profile                profile             @relation(fields: [profileId], references: [id])
+  phoneType              phoneType           @relation(fields: [phoneTypeId], references: [id])
+
+  callDays               communicationPreferencesCallDay[]
+  callTimes              communicationPreferencesCallTime[]
+  emailDays              communicationPreferencesEmailDay[]
+  emailTimes             communicationPreferencesEmailTime[]
+  smsDays                communicationPreferencesSmsDay[]
+  smsTimes               communicationPreferencesSmsTime[]
+
+  @@map("CommunicationPreferences")
+}
+
+model profilePhoneInfo  {
+  id                      Int                   @id @default(autoincrement()) @map("ID")
+  profileId               Int                   @map("ProfileID")@default(1)
+  phoneTypeId             Int                   @map("PhoneTypeId")
+  internationalPrefixId   Int                   @map("InternationalPrefix")
+  phoneNumber             String                @map("PhoneNumber")
+  phoneNumberExtension    String?   @map("PhoneNumberExtension")
+  faxNumber               String?   @map("FaxNumber")
+
+  updatedBy               Int               @map("UpdatedBy")  @default(0)
+  createdBy               Int                @map("CreatedBy") @default(0)
+  createdAt               DateTime           @default(now()) @map("CreatedAt")
+  updatedAt               DateTime           @default(now()) @updatedAt @map("UpdatedAt")
+
+  @@map("ProfilePhoneInfo")
+  profile profile @relation(fields: [profileId], references: [id]) 
+  internationalPrefix internationalPrefix @relation(fields: [internationalPrefixId], references: [id]) 
+  phoneType phoneType @relation(fields: [phoneTypeId], references: [id]) 
+
+}
+
+
+model vendorType {
+  id                 Int             @id @default(autoincrement()) @map("ID")
+  name               String          @map("Name") @db.VarChar(255)
+  createdAt          DateTime        @default(now()) @map("CreatedAt")
+  createdBy          Int             @map("CreatedBy") @default(0)
+  updatedAt          DateTime        @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int             @map("UpdatedBy")  @default(0)
+  vendor            vendor[]
+
+  @@unique([name])
+  @@map("VendorType")
+}
+
+model contactType {
+  id                 Int             @id @default(autoincrement()) @map("ID")
+  name               String          @map("Name") @db.VarChar(255)
+  createdAt          DateTime        @default(now()) @map("CreatedAt")
+  createdBy          Int             @map("CreatedBy") @default(0)
+  updatedAt          DateTime        @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy          Int             @map("UpdatedBy")  @default(0)
+
+  vendorContactDetails vendorContactDetails[]
+  @@unique([name])
+  @@map("ContactType")
+}
+
+model vendor {
+  id                   Int       @id @default(autoincrement()) @map("ID")
+  name                 String    @map("Name") @db.VarChar(255)
+  vendorTypeId         Int       @map("VendorTypeID")
+  isAlsoCaterer        Boolean   @default(false) @map("IsAlsoCaterer")
+  vendorStatusId       Int       @map("VendorStatusId")
+  startDate            DateTime? @map("StartDate")
+  endDate              DateTime? @map("EndDate")
+  additionalInformation String?  @map("AdditionalInformation") @db.Text
+  dba                  String?   @map("DBA") @db.VarChar(255)
+  websiteUrl           String?   @map("WebsiteURL") @db.VarChar(255)
+  facebookUrl          String?   @map("FacebookURL") @db.VarChar(255)
+  instagramUrl         String?   @map("InstagramURL") @db.VarChar(255)
+  createdBy            Int       @map("CreatedBy")
+  createdAt            DateTime  @default(now()) @map("CreatedAt")
+  updatedBy            Int       @map("UpdatedBy")
+  updatedAt            DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  vendorType           vendorType @relation(fields: [vendorTypeId], references: [id], onDelete: Cascade)
+  addresses            vendorAddressDetails[]
+  contacts             vendorContactDetails[]
+  clientVendors        clientVendors[]
+  vendorRooms          vendorRoom[]
+  vendorVenues         vendorVenue[]
+  vendorQuestionResponse vendorQuestionResponse[]
+
+  createdByProfile profile           @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction) 
+  updatedByProfile profile           @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vendorStatus         vendorStatus   @relation(fields: [vendorStatusId], references: [id],onDelete: NoAction, onUpdate: NoAction)
+  engagement_engagementAv engagement_engagementAv[]
+  @@unique([name])
+  @@map("Vendor")
+}
+
+model vendorStatus {
+  id                    Int                     @id @default(autoincrement()) @map("ID")
+  name                  String                  @map("Name") @db.VarChar(255)
+  createdAt             DateTime                @default(now()) @map("CreatedAt")
+  createdBy             Int                     @map("CreatedBy")
+  updatedAt             DateTime                @default(now()) @updatedAt @map("UpdatedAt")
+  updatedBy             Int                     @map("UpdatedBy")
+  
+  vendor vendor[]
+  @@map("VendorStatus")
+  @@unique([name])
+
+}
+
+model vendorAddressDetails {
+  id              Int       @id @default(autoincrement()) @map("ID")
+  vendorId        Int       @map("VendorID")
+  addressTypeId   Int       @map("AddressTypeID")
+  address1         String    @map("Address1") @db.VarChar(255)
+  address2         String    @map("Address2") @db.VarChar(255)
+  cityId          Int       @map("CityID")
+  stateId         Int       @map("StateID")
+  countryId       Int       @map("CountryID")
+  zipcode         String?   @map("ZipCode") @db.VarChar(20)
+  emailAddress    String?   @map("EmailAddress") @db.VarChar(255)
+  phoneNumber     String?   @map("PhoneNumber") @db.VarChar(20)
+  isPrimary      Boolean   @default(false) @map("IsPrimary")
+  createdBy       Int       @map("CreatedBy")
+  createdAt       DateTime  @default(now()) @map("CreatedAt")
+  updatedBy       Int       @map("UpdatedBy")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  // Relations
+  vendor          vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  addressType     addressType @relation(fields: [addressTypeId], references: [id], onDelete: Cascade)
+  city            city        @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  state           state       @relation(fields: [stateId], references: [id], onDelete: Cascade)
+  country         country     @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@map("VendorAddressDetails")
+}
+
+model vendorContactDetails {
+  id              Int       @id @default(autoincrement()) @map("ID")
+  vendorId        Int       @map("VendorID")
+  contactTypeId   Int       @map("ContactTypeID")
+  name            String    @map("Name") @db.VarChar(255)
+  phoneNumber     String?   @map("PhoneNumber") @db.VarChar(20)
+  emailAddress    String?   @map("EmailAddress") @db.VarChar(255)
+  createdBy       Int       @map("CreatedBy")
+  createdAt       DateTime  @default(now()) @map("CreatedAt")
+  updatedBy       Int       @map("UpdatedBy")
+  updatedAt       DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  vendor          vendor      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  contactType     contactType @relation(fields: [contactTypeId], references: [id], onDelete: Cascade)
+
+  @@map("VendorContactDetails")
+}
+
+model clientVendors {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  clientId            Int       @map("ClientID")
+  vendorId            Int       @map("VendorID")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  // Relations
+  client              client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  vendor              vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("ClientVendors")
+}
+
+ 
+model vendorRoom {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  vendorId            Int       @map("VendorID")
+  roomName            String    @map("RoomName") @db.VarChar(50)
+  maxCapacity         Int       @map("MaxCapacity")
+  rentalFee           Float     @map("RentalFee")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  // Relations
+  vendor              vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorQuestionResponse vendorQuestionResponse[]
+
+  @@map("VendorRoom")
+}
+
+model vendorVenue {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  vendorId            Int       @map("VendorID")
+  venueName           String    @default("default venue") @map("VenueName") @db.VarChar(50)
+  contactName         String    @default("default contactName") @map("ContactName") @db.VarChar(50)
+  phoneNumber         String    @default("default ohone") @map("PhoneNumber") @db.VarChar(50)
+  email               String    @map("Email") @db.VarChar(50)
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  // Relations
+  vendor              vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@map("VendorVenue")
+}
+model degree {
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+  
+  primaryHcpBioProfessionals   hcpBioProfessional[] @relation("PrimaryDegree")
+  secondaryHcpBioProfessionals hcpBioProfessional[] @relation("SecondaryDegree")
+
+  @@unique([name])
+  @@map("Degree")
+}
+
+model affiliationType{
+  id             Int            @id @map("ID") @default(autoincrement())
+  name           String         @map("Name")
+  createdAt      DateTime       @default(now()) @map("CreatedAt")
+  updatedAt      DateTime       @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int            @map("CreatedBy")
+  updatedBy      Int            @map("UpdatedBy")
+
+  hcpBioProfessional hcpBioProfessional[]
+
+  @@unique([name])
+  @@map("AffiliationType")
+}
+
+model medicalLicenseState {
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  hcpBioProfessional hcpBioProfessional[]
+  
+  @@unique([name])
+  @@map("MedicalLicenseState")
+}
+
+model medicalLicenseType {
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  hcpBioProfessional hcpBioProfessional[]
+
+  @@unique([name])
+  @@map("MedicalLicenseType")
+}
+ 
+model medicalLicenseJurisdictions{
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  hcpBioProfessional hcpBioProfessional[]
+
+  @@unique([name])
+  @@map("MedicalLicenseJurisdictions")
+  
+}
+
+model medicalLicenseStatus{
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  hcpBioProfessional hcpBioProfessional[]
+
+  @@unique([name])
+  @@map("MedicalLicenseStatus")
+}
+
+model segmentation{
+  id             Int       @id @map("ID") @default(autoincrement())
+  name           String    @map("Name")
+  createdAt      DateTime  @default(now()) @map("CreatedAt")
+  updatedAt      DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int       @map("CreatedBy")
+  updatedBy      Int       @map("UpdatedBy")
+
+  profileSegmentation profileSegmentation[]
+  
+  @@unique([name])
+  @@map("Segmentation")
+}
+model profileSegmentation{
+  id             Int              @id @map("ID") @default(autoincrement())
+  profileId      Int              @map("ProfileID")
+  segmentationId Int              @map("SegmentationID")
+  createdAt      DateTime         @default(now()) @map("CreatedAt")
+  updatedAt      DateTime         @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy      Int              @map("CreatedBy")
+  updatedBy      Int              @map("UpdatedBy")
+
+  profile        profile          @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  segmentation   segmentation     @relation(fields: [segmentationId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  
+  @@map("ProfileSegmentation")
+}
+
+model hcpBioProfessional{
+  id                                Int         @id @map("ID") @default(autoincrement())
+  profileId                         Int         @map("ProfileID")
+  roleId                            Int?        @map("RoleID")
+  primaryDegreeId                   Int         @map("PrimaryDegreeID")
+  secondaryDegreeId                 Int?        @map("SecondaryDegreeID")
+  medicalLicenseJurisdictionsId     Int         @map("MedicalLicenseJurisdictionsID")
+  medicalLicenseNumber              String      @map("MedicalLicenseNumber")
+  medicalLicenseEffectiveDate       DateTime    @map("MedicalLicenseEffectiveDate")
+  medicalLicenseExpiryDate          DateTime    @map("MedicalLicenseExpiryDate")
+  medicalLicenseTypeId              Int         @map("MedicalLicenseTypeID")
+  medicalLicenseStatusId            Int         @map("MedicalLicenseStatusID")
+  
+  medicalLicenseStateId             Int?         @map("MedicalLicenseStateID")
+  
+  affiliationTypeId                 Int?        @map("AffiliationTypeID")
+  affiliationName                   String?     @map("AffiliationName")
+  primarySpecialtyId                Int         @map("PrimarySpecialtyID")
+  secondarySpecialtyId              Int?        @map("SecondarySpecialtyID")
+  npi                               String?     @map("NPI")
+  academicInstitutionTitle          String?     @map("AcademicInstitutionTitle")
+  isVAorDoD                         Boolean?    @map("IsVAorDoD")
+  isGovernmentEmployee              Boolean?    @map("IsGovernmentEmployee")
+  isHcpPrescriber                   Boolean     @map("IsHcpPrescriber")
+  isMedicalSpeaker                  Boolean?    @map("IsMedicalSpeaker")
+  stateLicenseNumber                String?     @map("StateLicenseNumber")
+  stateLicenseExpiry                DateTime?   @map("StateLicenseExpiry")
+
+  isMedicalFellow                   Boolean?    @map("IsMedicalFellow")
+  createdAt                         DateTime    @default(now()) @map("CreatedAt")
+  updatedAt                         DateTime    @default(now()) @updatedAt @map("UpdatedAt")
+  createdBy                         Int         @map("CreatedBy")
+  updatedBy                         Int         @map("UpdatedBy")
+
+  profile                           profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  role                              role?       @relation(fields: [roleId], references: [id], onDelete: Cascade,onUpdate: Cascade)
+
+  primaryDegree                     degree      @relation("PrimaryDegree", fields: [primaryDegreeId], references: [id], onDelete: NoAction,onUpdate: NoAction)
+  secondaryDegree                   degree?     @relation("SecondaryDegree", fields: [secondaryDegreeId], references: [id], onDelete: NoAction,onUpdate: NoAction)
+  
+  medicalLicenseJurisdictions       medicalLicenseJurisdictions @relation(fields: [medicalLicenseJurisdictionsId], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  medicalLicenseType                medicalLicenseType          @relation(fields: [medicalLicenseTypeId], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  medicalLicenseStatus              medicalLicenseStatus        @relation(fields: [medicalLicenseStatusId], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  medicalLicenseState               medicalLicenseState?         @relation(fields: [medicalLicenseStateId], references: [id], onDelete: Cascade,onUpdate: Cascade)
+
+  affiliationType                   affiliationType?              @relation(fields: [affiliationTypeId], references: [id], onDelete: Cascade,onUpdate: Cascade)  
+
+  primarySpecialty                  specialty @relation("PrimarySpecialty", fields: [primarySpecialtyId], references: [id], onDelete: NoAction,onUpdate: NoAction)
+  secondarySpecialty                specialty? @relation("SecondarySpecialty", fields: [secondarySpecialtyId], references: [id], onDelete: NoAction,onUpdate: NoAction)
+    
+  @@map("HcpBioProfessional")
+}
+
+model questionCategory {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name") @db.VarChar(50)
+  isActive            Boolean   @map("IsActive")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  questions           question[]
+
+  @@unique([name])  
+  @@map("QuestionCategory")
+}
+
+model questionType {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name") @db.VarChar(50)
+  isActive            Boolean   @map("IsActive")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  questions           question[]
+
+  @@unique([name])
+  @@map("QuestionType")
+}
+
+model question {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  questionCategoryId  Int       @map("QuestionCategoryId")
+  questionTypeId      Int       @map("QuestionTypeId")
+  question            String    @map("Question") @db.VarChar(255)
+  isActive            Boolean   @map("IsActive")
+  parentQuestionId    Int?      @map("ParentQuestionID")
+  displayOrder        Int       @map("DisplayOrder")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  questionOptions     questionOption[]
+  vendorQuestionResponse vendorQuestionResponse[]
+  questionValidation questionValidation[]
+  
+  parentQuestion      question? @relation("QuestionParentChildRelation", fields: [parentQuestionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childQuestions      question[] @relation("QuestionParentChildRelation")
+
+  questionCategory    questionCategory @relation(fields: [questionCategoryId], references: [id], onDelete: Cascade)
+  questionType        questionType @relation(fields: [questionTypeId], references: [id], onDelete: Cascade)
+
+  @@map("Question")
+}
+
+model questionOption {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  questionId          Int       @map("QuestionId")
+  option              String    @map("Option") @db.VarChar(50)
+  isActive            Boolean   @map("IsActive")
+  displayOrder        Int       @map("DisplayOrder")  
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  vendorQuestionResponse vendorQuestionResponse[]
+ 
+  question               question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("QuestionOption")
+}
+
+model vendorQuestionResponse {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  vendorId            Int       @map("VendorId")
+  questionId          Int       @map("QuestionId")
+  questionOptionId    Int?      @map("QuestionOptionId")
+  customValue         String?   @map("CustomValue")
+  fileURL             String?   @map("FileURL")
+  vendorRoomId        Int?      @map("VendorRoomId")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  
+  vendor              vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)  
+  question            question  @relation(fields: [questionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  questionOption      questionOption?  @relation(fields: [questionOptionId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vendorRoom          vendorRoom?       @relation(fields: [vendorRoomId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  @@map("VendorQuestionResponse")  
+}
+
+model questionValidation {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  questionId          Int       @map("QuestionId")
+  typeValidationId    Int       @map("TypeValidationId")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt") 
+  
+  question           question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  typeValidation     typeValidation @relation(fields: [typeValidationId], references: [id], onDelete: Cascade)
+
+  @@map("QuestionValidation")
+}
+model typeValidation {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  typeField           String    @map("TypeField")@db.VarChar(50)
+  typeValue           String    @map("TypeValue")@db.VarChar(50)
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt") 
+
+  questionValidation questionValidation[]
+  
+  @@map("TypeValidation")
+}
+
+model serviceType {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name")@db.VarChar(50)
+  description         String    @map("Description")@db.VarChar(255)
+  isActive            Boolean   @map("IsActive")
+  cloneId             Int?      @map("CloneId") 
+  archivedAt          DateTime? @map("ArchivedAt") 
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  serviceTypeOffering serviceTypeOffering[]
+  serviceTypeWorkItem serviceTypeWorkItem[]
+
+  createdByProfile    profile   @relation("createdByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile    profile   @relation("updatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([name])
+  @@map("ServiceType")
+}
+
+model serviceOffering {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name")@db.VarChar(50)
+  description         String    @map("Description")@db.VarChar(255)
+  isActive            Boolean   @map("IsActive") @default(false)
+  serviceOfferingCodeId   Int   @map("ServiceOfferingCodeId") @default(0)
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  cloneId             Int?      @map("CloneID")
+  
+  archivedAt          DateTime? @map("ArchivedAt")
+  serviceTypeOffering serviceTypeOffering[]
+  createdByProfile        profile           @relation("CreatedByProfile", fields: [createdBy], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  updatedByProfile        profile           @relation("UpdatedByProfile", fields: [updatedBy], references: [id], onDelete: NoAction, onUpdate: NoAction)  
+
+  @@map("serviceOffering")
+}
+
+model serviceTypeOffering {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  serviceTypeId       Int       @map("ServicetypeId")
+  serviceOfferingId   Int       @map("ServiceOfferingId")
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  serviceType        serviceType  @relation(fields: [serviceTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  serviceOffering    serviceOffering  @relation(fields: [serviceOfferingId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+
+  @@map("ServiceTypeOffering")
+}
+
+model workItem {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name")@db.VarChar(255)
+  actionTypeId        Int       @map("ActionTypeId")
+  statusId            Int       @map("StatusId") 
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")     
+
+  workItemActionType workItemActionType @relation(fields: [actionTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workItemStatus      workItemStatus @relation(fields: [statusId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  serviceTypeWorkItem serviceTypeWorkItem[] 
+
+  @@unique([name])
+  @@map("WorkItem")
+}
+
+model workItemActionType {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name")@db.VarChar(50)
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  workItem workItem[]
+
+  @@unique([name])
+  @@map("WorkItemActionType")
+}
+
+model workItemStatus {
+  id                  Int       @id @default(autoincrement()) @map("ID")
+  name                String    @map("Name")@db.VarChar(50)
+  createdBy           Int       @map("CreatedBy")
+  createdAt           DateTime  @default(now()) @map("CreatedAt")
+  updatedBy           Int       @map("UpdatedBy")
+  updatedAt           DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  workItem workItem[]
+  @@unique([name])
+  @@map("WorkItemStatus")
+}
+
+model serviceTypeWorkItem {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  serviceTypeId       Int          @map("ServiceTypeId")
+  workItemId          Int          @map("WorkItemId")
+  status              Boolean      @map("Status") @default(true)
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+  
+  serviceType         serviceType  @relation(fields: [serviceTypeId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  workItem            workItem     @relation(fields: [workItemId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+ 
+  @@map("ServiceTypeWorkItem")
+}
+
+model lookup_avCategory {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  name                String       @map("Name")@db.VarChar(255)
+  isActive            Boolean      @map("IsActive")
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  lookup_av           lookup_av[]
+  @@unique([name])
+  @@map("Lookup_AVCategory")
+}
+ 
+model  lookup_av {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  name                String       @map("Name")@db.VarChar(255)
+  isActive            Boolean      @map("IsActive")
+  description         String?       @map("Description")@db.VarChar(255)
+  price               Int          @map("Price")
+  avCategoryId        Int          @map("AvCategoryId")
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  lookup_avCategory   lookup_avCategory   @relation(fields: [avCategoryId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  engagement_engagementAv engagement_engagementAv[]
+  @@unique([name])
+  @@map("Lookup_AV")
+}
+model engagement_engagementAv {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  isActive            Boolean      @map("IsActive")
+  avId                Int          @map("AvId")
+  engagementId        Int          @map("EngagementId")
+  vendorId            Int          @map("VendorId")
+  profileId           Int          @map("ProfileId")
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  lookup_av           lookup_av   @relation(fields: [avId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  vendor              vendor   @relation(fields: [vendorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profile             profile   @relation(fields: [profileId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+ 
+  @@map("Engagement_EngagementAv")
+}
+ 
+model engagementType_engagementType {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  name                String       @map("Name")@db.VarChar(255)
+  description         String       @map("Description")@db.VarChar(255)
+  isActive            Boolean      @map("IsActive")
+  therapeuticAreaId   Int          @map("TherapeuticAreaId")
+  engagementTypeId    Int          @map("EngagementTypeId")
+  primaryStartDate    DateTime     @default(now()) @map("PrimaryStartDate")
+  alternateStartDate1 DateTime?    @map("AlternateStartDate1")
+  alternateStartDate2 DateTime?    @map("AlternateStartDate2")
+  field               String       @map("Field") @db.VarChar(255)
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  therapeuticArea     therapeuticArea   @relation(fields: [therapeuticAreaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+ 
+  @@map("EngagementType_EngagementType")
+}
+ 
+model lookup_Duration {
+  id                  Int          @id @default(autoincrement()) @map("ID")  
+  name                String       @map("Name")@db.VarChar(255)
+  status              Boolean      @map("Status")
+  createdBy           Int          @map("CreatedBy")
+  createdAt           DateTime     @default(now()) @map("CreatedAt")
+  updatedBy           Int          @map("UpdatedBy")
+  updatedAt           DateTime     @default(now()) @updatedAt @map("UpdatedAt")
+ 
+  @@map("lookup_Duration")
+}
+ 
+model clientHierarchy {
+  id                        Int       @id @default(autoincrement()) @map("ID")
+  name                      String    @map("Name") @db.VarChar(50)
+  description               String?   @map("Description") @db.VarChar(255)
+  numberOfLevels            Int       @map("NumberOfLevels")
+  statusId                  Int       @map("StatusID")
+  effectiveDate             DateTime  @map("EffectiveDate")
+  endDate                   DateTime? @map("EndDate")
+  fieldReleaseDate          DateTime? @map("FieldReleaseDate")
+  createdBy                 Int       @map("CreatedBy")
+  createdAt                 DateTime  @default(now()) @map("CreatedAt")
+  updatedBy                 Int       @map("UpdatedBy")
+  updatedAt                 DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+  clientId                  Int?      @map("ClientID") 
+  cloneId                   Int?      @map("CloneID")
+
+  client                client?        @relation(fields: [clientId], references: [id])
+  status                status        @relation(fields: [statusId], references: [id])
+  hierarchyLevel hierarchyLevel[]
+  @@map("ClientHierarchy")
+}
+
+model hierarchyLevel {
+  id                        Int       @id @default(autoincrement()) @map("ID")
+  name                      String    @map("Name") @db.VarChar(50)
+  allowMultipleLevelValue   Boolean   @map("AllowMultipleLevelValue")
+  isActive                  Boolean   @map("IsActive")
+  levelOrder                Int       @map("LevelOrder")
+  clientHierarchyId         Int       @map("ClientHierarchyID")
+  parentHierarchyLevelId    Int?      @map("ParentHierarchyLevelID")  
+  createdBy                 Int       @map("CreatedBy")
+  createdAt                 DateTime  @default(now()) @map("CreatedAt")
+  updatedBy                 Int       @map("UpdatedBy")
+  updatedAt                 DateTime  @default(now()) @updatedAt @map("UpdatedAt")
+
+  clientHierarchy           clientHierarchy  @relation(fields: [clientHierarchyId], references: [id])
+  parentHierarchyLevel      hierarchyLevel?    @relation("ParentHierarchyLevel", fields: [parentHierarchyLevelId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  hierarchyLevel            hierarchyLevel[]   @relation("ParentHierarchyLevel")
+
+  @@map("HierarchyLevel")
+}

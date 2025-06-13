@@ -1,0 +1,22 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[Permission] DROP CONSTRAINT [Permission_EndDate_df];
+
+-- AlterTable
+ALTER TABLE [dbo].[Profile] DROP CONSTRAINT [Profile_EndDate_df];
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

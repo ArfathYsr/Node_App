@@ -1,0 +1,22 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[Profile] ADD [AssistantPhone] VARCHAR(30),
+[BusinessPhone] VARCHAR(30),
+[MobilePhone] VARCHAR(30),
+[OceDigitialId] VARCHAR(30);
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

@@ -1,0 +1,29 @@
+gitops:
+  # Manifest projects are watched by the agent. Whenever a project changes,
+  # GitLab deploys the changes using the agent.
+  manifest_projects:
+    # No authentication mechanisms are currently supported.
+    # The `id` is a path to a Git repository with Kubernetes resource definitions
+    # in YAML or JSON format.
+  - id: 21564
+    # Namespace to use if not set explicitly in object manifest.
+    ref:
+        branch: main
+    # Also used for inventory ConfigMap objects.
+    default_namespace: default
+    # Paths inside of the repository to scan for manifest files.
+    # Directories with names starting with a dot are ignored.
+    paths:
+      # Read all .yaml files from team1/app1 directory.
+      # See https://github.com/bmatcuk/doublestar#about and
+      # https://pkg.go.dev/github.com/bmatcuk/doublestar/v2#Match for globbing rules.
+    #- glob: '/manifests/**/*.yaml'
+    # Reconcile timeout defines whether the applier should wait
+    # until all applied resources have been reconciled, and if so,
+    # how long to wait.
+    reconcile_timeout: 3600s # 1 hour by default
+    dry_run_strategy: none # 'none' by default
+    prune: true # enabled by default
+    prune_timeout: 3600s # 1 hour by default
+    prune_propagation_policy: foreground # 'foreground' by default
+    inventory_policy: must_match # 'must_match' by default

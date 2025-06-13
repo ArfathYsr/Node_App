@@ -1,0 +1,20 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[TimeZone] ADD [Abbreviation] VARCHAR(255) NOT NULL CONSTRAINT [TimeZone_Abbreviation_df] DEFAULT '',
+[UtcOffset] VARCHAR(255) NOT NULL CONSTRAINT [TimeZone_UtcOffset_df] DEFAULT '';
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

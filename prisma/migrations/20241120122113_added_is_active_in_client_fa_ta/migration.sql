@@ -1,0 +1,22 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- AlterTable
+ALTER TABLE [dbo].[Client] ADD [IsActive] BIT NOT NULL CONSTRAINT [Client_IsActive_df] DEFAULT 1;
+
+-- AlterTable
+ALTER TABLE [dbo].[TherapeuticArea] ADD [IsActive] BIT NOT NULL CONSTRAINT [TherapeuticArea_IsActive_df] DEFAULT 1;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

@@ -1,0 +1,30 @@
+BEGIN TRY
+
+BEGIN TRAN;
+
+-- CreateTable
+CREATE TABLE [dbo].[roleClient] (
+    [ID] INT NOT NULL IDENTITY(1,1),
+    [RoleID] INT NOT NULL,
+    [clientID] INT NOT NULL,
+    CONSTRAINT [roleClient_pkey] PRIMARY KEY CLUSTERED ([ID])
+);
+
+-- AddForeignKey
+ALTER TABLE [dbo].[roleClient] ADD CONSTRAINT [roleClient_clientID_fkey] FOREIGN KEY ([clientID]) REFERENCES [dbo].[Client]([ID]) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE [dbo].[roleClient] ADD CONSTRAINT [roleClient_RoleID_fkey] FOREIGN KEY ([RoleID]) REFERENCES [dbo].[Role]([ID]) ON DELETE CASCADE ON UPDATE CASCADE;
+
+COMMIT TRAN;
+
+END TRY
+BEGIN CATCH
+
+IF @@TRANCOUNT > 0
+BEGIN
+    ROLLBACK TRAN;
+END;
+THROW
+
+END CATCH

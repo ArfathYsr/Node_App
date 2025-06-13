@@ -1,0 +1,39 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+root = true
+
+[*]
+# Indentation style
+indent_style = space
+indent_size = 2
+
+# End of line
+end_of_line = lf
+
+# Character encoding
+charset = utf-8
+
+# Trim trailing whitespace
+trim_trailing_whitespace = true
+
+# Insert final newline
+insert_final_newline = true
+
+# JavaScript and TypeScript files
+[*.js]
+quote_type = single
+semi = true
+
+[*.ts]
+quote_type = single
+semi = true
+
+# JSON files
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Markdown files
+[*.md]
+trim_trailing_whitespace = false
+insert_final_newline = false
