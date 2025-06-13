@@ -74,4 +74,4 @@ charts/
 sonar-project.properties
  
 # Ignore Husky pre-commit hook
-.husky/pre-commit
+.husky/pre-commit.env.txt

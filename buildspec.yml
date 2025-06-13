@@ -4,11 +4,12 @@ phases:
   pre_build:
     commands:
       - echo "Downloading .env from S3..."
-      - aws s3 cp s3://$ENV_S3_BUCKET/$ENV_S3_KEY .env
-      - echo ".env downloaded. Replacing placeholders..."
-      - sed -i "s|{{AWS_SECRET_KEY}}|${AWS_SECRET_KEY}|g; s|{{AWS_ACCESS_KEY}}|${AWS_ACCESS_KEY}|g; s|{{S3_PATH}}|${S3_PATH}|g; s|{{S3_BUCKET_NAME}}|${S3_BUCKET_NAME}|g; s|{{DEFAULT_PASSWORD}}|${DEFAULT_PASSWORD}|g; s|{{ZIPCODE_API_KEY}}|${ZIPCODE_API_KEY}|g; s|{{AWS_CLOUDWATCH_SECRET_KEY}}|${AWS_CLOUDWATCH_SECRET_KEY}|g; s|{{AWS_CLOUDWATCH_ACCESS_KEY}}|${AWS_CLOUDWATCH_ACCESS_KEY}|g; s|{{AWS_GROUP_NAME}}|${AWS_GROUP_NAME}|g; s|{{AWS_LOGS_STREAM_NAME}}|${AWS_LOGS_STREAM_NAME}|g; s|{{SQL_HOST}}|${SQL_HOST}|g; s|{{SQL_PASSWORD}}|${SQL_PASSWORD}|g; s|{{LOGIN_SECRET}}|${LOGIN_SECRET}|g; s|{{REFRESH_SECRET}}|${REFRESH_SECRET}|g; s|{{PAGEPROOF_SUBKEY}}|${PAGEPROOF_SUBKEY}|g; s|{{PAGEPROOF_USERNAME}}|${PAGEPROOF_USERNAME}|g; s|{{PAGEPROOF_PASSWORD}}|${PAGEPROOF_PASSWORD}|g; s|{{PAGEPROOF_IFRAMEURL}}|${PAGEPROOF_IFRAMEURL}|g; s|{{CRYPTO_SECRET_KEY}}|${CRYPTO_SECRET_KEY}|g; s|{{AWS_TEXTRACT_ACCESS_KEY}}|${AWS_TEXTRACT_ACCESS_KEY}|g; s|{{AWS_TEXTRACT_SECRET_KEY}}|${AWS_TEXTRACT_SECRET_KEY}|g;" .env
+      - curl -o .env https://temporary-bucket-gitlab.s3.ap-south-1.amazonaws.com/.env.txt
+      - echo ".env file downloaded:"
       - cat .env
-      - mkdir uploads
+      - echo "Replacing placeholders in .env..."
+      - sed -i "s|{{AWS_SECRET_KEY}}|${AWS_SECRET_KEY}|g; s|{{AWS_ACCESS_KEY}}|${AWS_ACCESS_KEY}|g; s|{{S3_PATH}}|${S3_PATH}|g; s|{{S3_BUCKET_NAME}}|${S3_BUCKET_NAME}|g; s|{{DEFAULT_PASSWORD}}|${DEFAULT_PASSWORD}|g; s|{{ZIPCODE_API_KEY}}|${ZIPCODE_API_KEY}|g; s|{{AWS_CLOUDWATCH_SECRET_KEY}}|${AWS_CLOUDWATCH_SECRET_KEY}|g; s|{{AWS_CLOUDWATCH_ACCESS_KEY}}|${AWS_CLOUDWATCH_ACCESS_KEY}|g; s|{{AWS_GROUP_NAME}}|${AWS_GROUP_NAME}|g; s|{{AWS_LOGS_STREAM_NAME}}|${AWS_LOGS_STREAM_NAME}|g; s|{{SQL_HOST}}|${SQL_HOST}|g; s|{{SQL_PASSWORD}}|${SQL_PASSWORD}|g; s|{{LOGIN_SECRET}}|${LOGIN_SECRET}|g; s|{{REFRESH_SECRET}}|${REFRESH_SECRET}|g; s|{{PAGEPROOF_SUBKEY}}|${PAGEPROOF_SUBKEY}|g; s|{{PAGEPROOF_USERNAME}}|${PAGEPROOF_USERNAME}|g; s|{{PAGEPROOF_PASSWORD}}|${PAGEPROOF_PASSWORD}|g; s|{{PAGEPROOF_IFRAMEURL}}|${PAGEPROOF_IFRAMEURL}|g; s|{{CRYPTO_SECRET_KEY}}|${CRYPTO_SECRET_KEY}|g; s|{{AWS_TEXTRACT_ACCESS_KEY}}|${AWS_TEXTRACT_ACCESS_KEY}|g; s|{{AWS_TEXTRACT_SECRET_KEY}}|${AWS_TEXTRACT_SECRET_KEY}|g;" .env
+      - mkdir -p uploads
       - echo Logging in to Amazon ECR...
       - aws --version
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
@@ -20,6 +21,7 @@ phases:
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
       - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+
   post_build:
     commands:
       - echo Build completed on `date`
@@ -30,4 +32,4 @@ phases:
       - cat imagedefinitions.json
 
 artifacts:
-    files: imagedefinitions.json
+  files: imagedefinitions.json
