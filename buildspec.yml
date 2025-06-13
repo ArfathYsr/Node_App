@@ -12,23 +12,23 @@ phases:
       - mkdir -p uploads
       - echo Logging in to Amazon ECR...
       - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
-      - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - aws ecr get-login-password --region ap-southeast-1 | docker login --username AWS --password-stdin 937378413704.dkr.ecr.ap-southeast-1.amazonaws.com
+      - REPOSITORY_URI=937378413704.dkr.ecr.ap-southeast-1.amazonaws.com/eks-common-services-api
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker build -t eks-common-services-api.
+      - docker tag eks-common-services-api:latest public.ecr.aws/t7g3t1i4/eks-common-services-api:latest
 
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker images...
+      - docker push public.ecr.aws/t7g3t1i4/eks-common-services-api:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' eks-common-services-api public.ecr.aws/t7g3t1i4/eks-common-services-api> imagedefinitions.json
       - cat imagedefinitions.json
 
 artifacts:

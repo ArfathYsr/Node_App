@@ -11,8 +11,8 @@ COPY . .
 
 RUN npm install --ignore-scripts && \
     npm run db:client && \
-    npm run db:deploy && \
-    npm run db:seed && \
+    #npm run db:deploy && \
+    #npm run db:seed && \
     npm run build && \
     npx prisma generate
 
